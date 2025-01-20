@@ -4,6 +4,19 @@ import os
 from datetime import datetime
 from subprocess import call
 
+def remove_git_lock():
+    """
+    Usuwa plik .git/index.lock, jeśli istnieje, aby zapobiec problemom z blokadą repozytorium.
+    """
+    git_lock_file = "/root/gitapp/.git/index.lock"
+
+    if os.path.exists(git_lock_file):
+        try:
+            os.remove(git_lock_file)
+            print("🗑 Usunięto plik blokady Git: {}".format(git_lock_file))
+        except Exception as e:
+            print("❌ Błąd podczas usuwania pliku blokady Git: {}".format(e))
+
 def update_date_file():
     """
     Funkcja dodaje pojedynczy rekord do pliku CSV.
@@ -37,8 +50,11 @@ def git_commit_and_push():
     date_file = "data/raw/date.csv"
 
     try:
+        # Usunięcie blokady Git przed operacją
+        remove_git_lock()
+
         call([git_path, "add", date_file])
-        call([git_path, "commit", "-m", "Model trainign"])
+        call([git_path, "commit", "-m", "Automatyczna aktualizacja daty"])
         call([git_path, "push"])
         print("✅ Zaktualizowany plik został wysłany na GitHub.")
     except Exception as e:
