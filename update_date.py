@@ -5,9 +5,7 @@ import random
 from subprocess import call
 
 def remove_git_lock():
-    """
-    Usuwa plik .git/index.lock, jeśli istnieje, aby zapobiec problemom z blokadą repozytorium.
-    """
+   
     git_lock_file = "/root/gitapp/.git/index.lock"
 
     if os.path.exists(git_lock_file):
@@ -18,9 +16,7 @@ def remove_git_lock():
             print("❌ Błąd podczas usuwania pliku blokady Git: {}".format(str(e)))
 
 def generate_fake_ml_data():
-    """
-    Generuje dane wyglądające jak zestaw treningowy ML.
-    """
+    
     folder_path = "data/raw"
     data_file = os.path.join(folder_path, "ml_data.csv")
 
@@ -35,11 +31,11 @@ def generate_fake_ml_data():
 
         # Generowanie 10 losowych rekordów
         for _ in range(10):
-            feature1 = round(random.uniform(-1, 1), 2)
-            feature2 = round(random.uniform(-1, 1), 2)
-            feature3 = round(random.uniform(-1, 1), 2)
+            x = round(random.uniform(-1, 1), 2)
+            y = round(random.uniform(-1, 1), 2)
+            z = round(random.uniform(-1, 1), 2)
             label = random.choice([0, 1]) 
-            file.write("{},{},{},{}\n".format(feature1, feature2, feature3, label))
+            file.write("{},{},{},{}\n".format(x, y, z, label))
 
     return data_file
 
