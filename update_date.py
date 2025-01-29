@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import os
-from datetime import datetime
+import random
 from subprocess import call
 
 def remove_git_lock():
@@ -15,60 +15,58 @@ def remove_git_lock():
             os.remove(git_lock_file)
             print("🗑 Usunięto plik blokady Git: {}".format(git_lock_file))
         except Exception as e:
-            print("❌ Błąd podczas usuwania pliku blokady Git: {}".format(e))
+            print("❌ Błąd podczas usuwania pliku blokady Git: {}".format(str(e)))
 
-def update_date_file():
+def generate_fake_ml_data():
     """
-    Funkcja dodaje pojedynczy rekord do pliku CSV.
+    Generuje dane wyglądające jak zestaw treningowy ML.
     """
     folder_path = "data/raw"
-    date_file = os.path.join(folder_path, "date.csv")
+    data_file = os.path.join(folder_path, "ml_data.csv")
 
-    # Tworzenie folderu, jeśli nie istnieje
     if not os.path.exists(folder_path):
         os.makedirs(folder_path)
 
-    current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    file_exists = os.path.isfile(data_file)
 
-    # Sprawdzenie, czy plik już istnieje
-    file_exists = os.path.isfile(date_file)
-
-    # Dodanie nowego rekordu do CSV
-    with open(date_file, "a") as file:
+    with open(data_file, "a") as file:
         if not file_exists:
-            file.write("Timestamp\n")  # Dodanie nagłówka tylko jeśli plik nie istniał
-        file.write("{}\n".format(current_time))
+            file.write("Feature1,Feature2,Feature3,Label\n") 
 
-    print("✅ Plik {} został zaktualizowany.".format(date_file))
+        # Generowanie 10 losowych rekordów
+        for _ in range(10):
+            feature1 = round(random.uniform(-1, 1), 2)
+            feature2 = round(random.uniform(-1, 1), 2)
+            feature3 = round(random.uniform(-1, 1), 2)
+            label = random.choice([0, 1]) 
+            file.write("{},{},{},{}\n".format(feature1, feature2, feature3, label))
 
-def git_commit_and_push():
+    return data_file
+
+def git_commit_and_push(file_path):
     """
     Funkcja dodaje plik CSV do Git, wykonuje commit i push.
     """
-    os.chdir("/root/gitapp")  # Przejście do katalogu repozytorium
+    os.chdir("/root/gitapp")
     git_path = "/usr/bin/git"
-    date_file = "data/raw/date.csv"
 
     try:
-        # Usunięcie blokady Git przed operacją
         remove_git_lock()
 
-        call([git_path, "add", date_file])
-        call([git_path, "commit", "-m", "Automatyczna aktualizacja daty"])
+        call([git_path, "add", file_path])
+        call([git_path, "commit", "-m", "Automatyczna aktualizacja danych ML"])
         call([git_path, "push"])
         print("✅ Zaktualizowany plik został wysłany na GitHub.")
     except Exception as e:
-        print("❌ Wystąpił błąd podczas operacji Git: {}".format(e))
+        print("❌ Wystąpił błąd podczas operacji Git: {}".format(str(e)))
 
 def main():
-    """
-    Główna funkcja uruchamiająca aktualizację pliku i synchronizację z Git.
-    """
+
     try:
-        update_date_file()
-        git_commit_and_push()
+        file_path = generate_fake_ml_data()
+        git_commit_and_push(file_path)
     except Exception as e:
-        print("❌ Wystąpił błąd: {}".format(e))
+        print("❌ Wystąpił błąd: {}".format(str(e)))
 
 if __name__ == "__main__":
     main()
